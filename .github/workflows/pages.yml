@@ -23,14 +23,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Récupérer le dépôt
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Préparer GitHub Pages
         uses: actions/configure-pages@v5
       - name: Charger le site
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: .
       - name: Publier le site
         id: deployment
         uses: actions/deploy-pages@v4
+
 
