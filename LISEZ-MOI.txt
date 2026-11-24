@@ -1,0 +1,25 @@
+CYBERWATCH — PORTAIL DE VEILLE CYBER
+Version enrichie : journal de suivi, historique des changements et amélioration continue.
+
+OUVERTURE
+1. Extraire l'archive ZIP dans un dossier.
+2. Ouvrir index.html avec Google Chrome, Edge ou Firefox.
+3. Aller dans « Suivi & historique » pour consulter les traces et les indicateurs.
+
+FONCTIONNALITES AJOUTEES
+- Journal horodaté des créations, modifications et suppressions d'alertes.
+- Comparaison des valeurs avant / après chaque modification.
+- Traçabilité des vérifications SI, des changements de checklist et des recalculs de risque.
+- Déclaration et suivi des améliorations H1, H2 et H3.
+- Responsable, échéance, statut, commentaire, résultat détaillé et preuve pour le suivi.
+- Tableau de bord dynamique des changements, des actions ouvertes / terminées et des améliorations.
+- Filtres et recherche dans l'historique.
+- Export CSV de l'historique et sauvegarde complète JSON.
+- Import / restauration d'une sauvegarde JSON.
+- Impression du rapport depuis le navigateur (choisir « Enregistrer au format PDF » pour obtenir un PDF).
+
+DONNEES ET LIMITES
+Les données sont enregistrées dans le stockage local du navigateur utilisé (localStorage). Elles ne sont pas synchronisées entre plusieurs ordinateurs ou navigateurs. Exporter régulièrement la sauvegarde JSON. Pour un travail d'équipe, il faudra connecter le portail à une base de données et ajouter une authentification.
+
+Les 8 alertes d'octobre 2026 restent les données initiales du journal. L'historique des changements commence au premier ajout, modification ou suivi réalisé dans cette version enrichie.
+
