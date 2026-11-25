@@ -1,9 +1,11 @@
-name: Publier CyberWatch sur GitHub Pages
+name: Collecter les alertes et publier CyberWatch
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: "*/15 * * * *"
 
 permissions:
   actions: read
@@ -24,14 +26,18 @@ jobs:
     steps:
       - name: Récupérer le dépôt
         uses: actions/checkout@v6
+      - name: Préparer Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+      - name: Récupérer les alertes officielles CERT-FR
+        run: python scripts/fetch_cert_alerts.py --output alerts.json
       - name: Préparer GitHub Pages
         uses: actions/configure-pages@v5
-      - name: Charger le site
+      - name: Charger le site et le flux actualisé
         uses: actions/upload-pages-artifact@v4
         with:
           path: .
       - name: Publier le site
         id: deployment
         uses: actions/deploy-pages@v4
-
-
