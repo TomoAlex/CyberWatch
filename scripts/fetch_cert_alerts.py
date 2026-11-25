@@ -13,9 +13,9 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 FEED_URL = "https://cert.cyber.gouv.fr/alerte/feed/"
-CVE_RE = re.compile(r"\\bCVE-20\\d{2}-\\d{4,8}\\b", re.I)
+CVE_RE = re.compile(r"\bCVE-20\d{2}-\d{4,8}\b", re.I)
 HTML_RE = re.compile(r"<[^>]+>")
-TAG_RE = re.compile(r"<(script|style)\\b[^>]*>.*?</\\1>", re.I | re.S)
+TAG_RE = re.compile(r"<(script|style)\b[^>]*>.*?</\1>", re.I | re.S)
 EXPLOIT_RE = re.compile(r"exploitation active|activement exploité|actively exploited|exploited in the wild", re.I)
 MONTHS = {
     "janvier": 1, "février": 2, "fevrier": 2, "mars": 3, "avril": 4,
@@ -38,7 +38,7 @@ def clean_text(value: str) -> str:
     value = html.unescape(value or "")
     value = TAG_RE.sub(" ", value)
     value = HTML_RE.sub(" ", value)
-    return re.sub(r"\\s+", " ", value).strip()
+    return re.sub(r"\s+", " ", value).strip()
 
 def iso_date(raw_date: str, title: str) -> str:
     if raw_date:
@@ -51,7 +51,7 @@ def iso_date(raw_date: str, title: str) -> str:
                 return dt.datetime.fromisoformat(raw_date.replace("Z", "+00:00")).date().isoformat()
             except ValueError:
                 pass
-    match = re.search(r"\\((\\d{1,2})\\s+([A-Za-zÀ-ÿ]+)\\s+(20\\d{2})\\)", title)
+    match = re.search(r"\((\d{1,2})\s+([A-Za-zÀ-ÿ]+)\s+(20\d{2})\)", title)
     if match:
         month = MONTHS.get(match.group(2).lower())
         if month:
@@ -117,7 +117,7 @@ def main() -> None:
         "generatedAt": dt.datetime.now(dt.timezone.utc).isoformat(),
         "items": items[:100],
     }
-    Path(args.output).write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+    Path(args.output).write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 if __name__ == "__main__":
     main()
