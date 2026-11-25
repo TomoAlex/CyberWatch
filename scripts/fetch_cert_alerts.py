@@ -75,7 +75,7 @@ def item_record(node: ET.Element) -> dict:
         "cve": " / ".join(cves) if cves else "Alerte CERT-FR",
         "cvss": "Non fourni par le flux",
         "priority": priority,
-        "status": "Exploitation active signalée" if exploited else "À qualifier",
+        "status": "Exploitation active" if exploited else "À qualifier",
         "kev": False,
         "checkedSI": False,
         "summary": description or "Consulter l’avis CERT-FR pour le détail de l’alerte.",
