@@ -42,7 +42,7 @@
   <button data-view="risques"><span class="ico">△</span> Analyse des risques</button>
   <button data-view="scenarios"><span class="ico">⌘</span> Signaux & scénarios</button>
  </nav>
- <div class="sidebar-bottom"><div class="live"><span class="dot"></span> ESPACE DE VEILLE ACTIF</div><p>Historique initial : octobre 2026<br>Prochaine revue mensuelle : novembre 2026</p></div>
+ <div class="sidebar-bottom"><div class="live"><span class="dot"></span> ESPACE DE VEILLE ACTIF</div><p>Revue de référence : 23 novembre 2026<br>Collecte CERT-FR automatique : toutes les 15 min</p></div>
 </aside>
 <main class="main">
  <header class="topbar"><div style="display:flex;align-items:center;gap:12px"><button class="btn small mobile-menu" id="mobileMenu">☰</button><div class="crumb">CYBER INTELLIGENCE / <b id="breadcrumb">VUE GÉNÉRALE</b></div></div><div class="top-actions"><span class="date-chip">● &nbsp; 23 NOVEMBRE 2026</span><span class="user-chip"><span class="user-icon">CW</span> Analyste veille</span></div></header>
@@ -50,7 +50,7 @@
  <!-- DASHBOARD -->
  <section class="view active" id="view-dashboard">
   <div class="hero"><div><div class="eyebrow">Centre de pilotage · Veille cyber</div><h1>Voir venir. Comprendre.<br><span style="color:var(--cyan)">Agir à temps.</span></h1><p>Un espace unique pour suivre les menaces, qualifier les vulnérabilités et transformer les signaux en décisions de sécurité.</p></div><div class="hero-actions"><button class="btn ghost" onclick="window.print()">↧ Exporter / imprimer</button><button class="btn primary" id="addTop">＋ Nouvelle alerte</button></div></div>
-  <div class="callout"><strong>Cadre de suivi :</strong> H1 — conception d'infrastructure (mensuel) · H2 — cybersécurité (quotidien) · H3 — veille cyber et bilan (mensuel). Les événements ci-dessous constituent le point de départ documenté d'octobre 2026.</div>
+  <div class="callout"><strong>Cadre de suivi :</strong> H1 — conception d'infrastructure (mensuel) · H2 — cybersécurité (quotidien) · H3 — veille cyber et bilan (mensuel). Les 8 alertes d'octobre constituent le point de départ ; le flux officiel CERT-FR complète le journal avec les alertes récentes.</div>
   <div class="grid stats">
    <div class="card stat"><div class="stat-top"><span>Événements recensés</span><span class="stat-icon">▤</span></div><div class="stat-value" id="statTotal">8</div><div class="stat-note">Journal initial · octobre 2026</div></div>
    <div class="card stat"><div class="stat-top"><span>Vulnérabilités au catalogue KEV</span><span class="stat-icon">⚑</span></div><div class="stat-value" id="statKev">4</div><div class="stat-note">Exploitation confirmée par CISA / NVD</div></div>
@@ -89,7 +89,8 @@
  </section>
  <!-- JOURNAL -->
  <section class="view" id="view-journal">
-  <div class="hero"><div><div class="eyebrow">Questions 8 · 10 · 11 · 13</div><h1>Journal de veille</h1><p>Registre central des événements d'octobre 2026. Les priorités sont indicatives et doivent être confrontées au parc réellement exploité.</p></div><div class="hero-actions"><button class="btn ghost" id="exportCsv">↧ Export CSV</button><button class="btn primary" id="addJournal">＋ Ajouter une alerte</button></div></div>
+  <div class="hero"><div><div class="eyebrow">Questions 8 · 10 · 11 · 13</div><h1>Journal de veille</h1><p>Alertes initiales et publications CERT-FR récupérées automatiquement. Les priorités restent indicatives et doivent être confrontées au parc réellement exploité.</p></div><div class="hero-actions"><button class="btn ghost" id="syncCertAlerts">↻ Actualiser la veille</button><button class="btn ghost" id="exportCsv">↧ Export CSV</button><button class="btn primary" id="addJournal">＋ Ajouter une alerte</button></div></div>
+  <div class="callout" style="margin-bottom:14px"><strong>Flux CERT-FR :</strong> actualisation automatique toutes les 15 minutes. <span id="certFeedStatus" role="status">Chargement de l’état du flux…</span></div>
   <div class="filters"><input id="searchAlerts" class="field search" placeholder="Rechercher un produit, CVE, éditeur…"><select id="filterPriority" class="field"><option value="">Toutes les priorités</option><option value="P1">P1 · Critique</option><option value="P2">P2 · Élevée</option><option value="P3">P3 · Moyenne</option><option value="P4">P4 · Faible</option></select><select id="filterStatus" class="field"><option value="">Tous les statuts</option><option value="Exploitation active">Exploitation active</option><option value="Alerte critique">Alerte critique</option><option value="Incident signalé">Incident signalé</option><option value="À qualifier">À qualifier</option><option value="Correctif disponible">Correctif disponible</option><option value="En cours de traitement">En cours de traitement</option><option value="Corrigée / surveillée">Corrigée / surveillée</option><option value="Clôturée">Clôturée</option></select><span class="tag neutral" id="filterCount">8 événements</span></div>
   <div class="card panel"><div class="table-wrap"><table><thead><tr><th>Date</th><th>Produit / éditeur</th><th>Vulnérabilité / signal</th><th>Priorité</th><th>Statut</th><th>Ouvrir</th></tr></thead><tbody id="alertRows"></tbody></table></div><div id="emptyAlerts" class="empty" style="display:none">Aucun événement ne correspond à ce filtre.</div></div>
   <div class="callout" style="margin-top:14px"><strong>Règle d'analyse :</strong> une alerte n'est pas automatiquement une vulnérabilité présente dans votre SI. Vérifier le produit, la version, l'exposition, la criticité métier, les mesures compensatoires et l'existence d'une compromission avant de clôturer.</div>
@@ -240,6 +241,38 @@ function loadJSON(key, fallback){try{const v=localStorage.getItem(key);return v?
 function persist(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true;}catch(e){toast('Stockage local saturé ou indisponible. Exportez une sauvegarde JSON.');return false;}}
 function loadAlerts(){const v=loadJSON('cyberwatch-alerts-v1',null);return Array.isArray(v)?v:seedAlerts.map(x=>({...x,followUpStatus:'À faire',owner:'',dueDate:'',followUpComment:'',result:'',evidence:''}));}
 function saveAlerts(){persist('cyberwatch-alerts-v1',alerts);}
+let certSyncInProgress=false;
+async function syncCertAlerts(){
+ if(certSyncInProgress)return;
+ certSyncInProgress=true;
+ const status=document.getElementById('certFeedStatus');
+ if(status)status.textContent='Lecture de la dernière collecte CERT-FR…';
+ try{
+  const feedUrl=new URL('alerts.json',document.baseURI);feedUrl.searchParams.set('t',String(Date.now()));
+  const response=await fetch(feedUrl.href,{cache:'no-store'});
+  if(!response.ok)throw new Error('Flux indisponible');
+  const snapshot=await response.json();
+  if(!Array.isArray(snapshot.items))throw new Error('Format du flux invalide');
+  const preserve=['followUpStatus','owner','dueDate','followUpComment','result','evidence','checkedSI'];
+  let added=0,updated=0;
+  for(const raw of snapshot.items){
+   if(!raw||!raw.id||!raw.product)continue;
+   const incoming={...raw,followUpStatus:raw.followUpStatus||'À faire',owner:raw.owner||'',dueDate:raw.dueDate||'',followUpComment:raw.followUpComment||'',result:raw.result||'',evidence:raw.evidence||'',checkedSI:!!raw.checkedSI};
+   const index=alerts.findIndex(item=>item.id===incoming.id);
+   if(index<0){alerts.unshift(incoming);added++;continue;}
+   const previous=alerts[index],merged={...previous,...incoming};
+   preserve.forEach(key=>{if(previous[key]!==undefined)merged[key]=previous[key];});
+   if(JSON.stringify(previous)!==JSON.stringify(merged)){alerts[index]=merged;updated++;}
+  }
+  if(added||updated){saveAlerts();renderAll();}
+  if(added)recordChange({action:'CREATION',entityType:'Synchronisation CERT-FR',entityId:'cert-fr-rss',entity:'Flux RSS officiel',summary:added+' nouvelle(s) alerte(s) CERT-FR importée(s)',details:'Collecte automatique du flux officiel des alertes CERT-FR. Les versions affectées et la pertinence pour le SI restent à vérifier.',followUpStatus:'Terminé',result:'Les alertes ont été ajoutées au journal local sans modifier les suivis des alertes déjà présentes.',evidence:snapshot.sourceUrl||'https://cert.cyber.gouv.fr/alerte/feed/'});
+  const generated=snapshot.generatedAt?new Date(snapshot.generatedAt):null;
+  const stamp=generated&&!isNaN(generated)?generated.toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}):'date inconnue';
+  if(status)status.textContent='Dernière collecte : '+stamp+' · '+snapshot.items.length+' alertes dans le flux'+(added?' · '+added+' nouvelle(s) ajoutée(s)':updated?' · fiches actualisées':' · à jour');
+ }catch(error){
+  if(status)status.textContent='Flux temporairement indisponible ; les alertes déjà enregistrées sont conservées.';
+ }finally{certSyncInProgress=false;}
+}
 function saveAudit(){persist('cyberwatch-audit-v2',auditLog);}
 function saveImprovements(){persist('cyberwatch-improvements-v2',improvements);}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -339,6 +372,9 @@ document.getElementById('importBackupFile').addEventListener('change',async e=>{
 // Navigation et filtres du journal de suivi.
 // Les filtres n'écrivent pas dans l'audit, car ils ne modifient pas les données suivies.
 renderAll();
+document.getElementById('syncCertAlerts').addEventListener('click',syncCertAlerts);
+syncCertAlerts();setInterval(syncCertAlerts,15*60*1000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncCertAlerts();});
 </script>
 </body>
 </html>
